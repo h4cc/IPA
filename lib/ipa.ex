@@ -377,6 +377,42 @@ defmodule IPA do
     |> which_block?
   end
 
+  # TODO: More docs
+  @doc """
+    Returning a representation of the address in form of a integer.
+
+    ## Examples
+
+        iex> IPA.address_to_number("10.0.5.9")
+        167773449
+  """
+  def address_to_number(address) do
+    {a, b, c, d} = to_octets(address)
+    a * 16777216 + b * 65536 + c * 256 + d
+  end
+
+  # TODO: More docs
+  @doc """
+    Reverting integer representation back to a address.
+
+    ## Examples
+
+        iex> IPA.number_to_address(167773449)
+        "10.0.5.9"
+  """
+  @spec number_to_address(integer) :: String.t
+  def number_to_address(number) when is_integer(number) do
+    {a, r} = divrem(number, 16777216)
+    {b, r} = divrem(r, 65536)
+    {c, d} = divrem(r, 256)
+    to_dotted_dec {a, b, c, d}
+  end
+
+  # A combination of div() and rem()
+  defp divrem(x, y) do
+    {div(x, y), rem(x, y)}
+  end
+
   # this whole pre-transformations validations feels REALLY clunky
   # a series of basic validity checks before transforming to list of octets
   defp pre_transformation_validations(addr) when is_tuple(addr), do: true

@@ -195,4 +195,25 @@ defmodule IPATest do
     assert IPA.block("240.0.0.0") == :future
     assert IPA.block("255.255.255.255") == :limited_broadcast
   end
+
+  test "address to number and inverse" do
+    address_number_pairs = [
+      {"0.0.0.0", 0}, # first
+      {"127.255.255.255", 2147483647},
+      {"128.0.0.0", 2147483648},
+      {"255.255.255.255", 4294967295}, #last
+
+      # singles
+      {"0.0.0.1", 1},
+      {"0.0.1.0", 256},
+      {"0.1.0.0", 65536},
+      {"1.0.0.0", 16777216},
+    ]
+
+    Enum.each(address_number_pairs, fn({address, number}) ->
+      assert IPA.address_to_number(address) == number
+      assert IPA.number_to_address(number) == address
+      assert address == (IPA.address_to_number(address) |> IPA.number_to_address)
+    end)
+  end
 end
